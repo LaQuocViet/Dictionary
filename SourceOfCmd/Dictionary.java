@@ -104,7 +104,7 @@ public class Dictionary extends Word{
         }
         return false;
     }
-    //tìm kiếm theo từ tiếng anh, có thế nhập vào 1 hoặc kí tự, kết thúc khi phát hiện dấu '.', hoặc khi tìm thấy từ, hoặc khi không tìm thấy từ
+    //tìm kiếm theo từ tiếng anh, có thế nhập vào 1 hoặc nhiều kí tự; kết thúc khi phát hiện dấu '.', hoặc khi tìm thấy từ, hoặc khi không tìm thấy từ
     public void search(){
             String searchingWord = "";
             String elementOfSearchingWord;
