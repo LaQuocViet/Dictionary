@@ -188,6 +188,7 @@ public class Dictionary extends JFrame{
         pos+=textLength;
         if (listE.size() == 1 && pos == listE.get(0).eng.length()){
                 jScrollPane.setSize(180,0);
+                englishList.setSelectedIndex(0);
                 vieField.setText(" " + listE.get(0).vie);
         }else{
             int height = 0, numberOfElement = listE.getSize();
@@ -388,19 +389,48 @@ public class Dictionary extends JFrame{
                                 }
                             }
                             //add vào list tìm kiếm
-                            int m = listE.size();
-                            if (m > 0){
-                                if (compare(w, listE.get(0)) == -1){
-                                    listE.add(0,w);
-                                }else if (compare(w, listE.get(n-1)) == 1){
-                                    listE.add(n,w);
-                                }else for(int j = 0; j < n-1; j++){
-                                    if (compare(w, listE.get(j)) == 1 && compare(w, listE.get(j+1)) == -1){
-                                    listE.add(j+1, w);
-                                    break;
+                            if (isApartOf(preState, eng)){
+                                int m = listE.size();
+                                if (m > 0){
+                                    if (compare(w, listE.get(0)) == -1){
+                                        listE.add(0,w);
+                                    }else if (compare(w, listE.get(m-1)) == 1){
+                                            listE.add(m,w);
+                                          }else for(int j = 0; j < m-1; j++){
+                                                    if (compare(w, listE.get(j)) == 1 && compare(w, listE.get(j+1)) == -1){
+                                                        listE.add(j+1, w);
+                                                        break;
+                                                    }
+                                           }
+                                }
+                            }else{
+                                int preStateLength = preState.length();
+                                int index = 0;
+                                for(int i = 0; i < preStateLength; i++){
+                                    if (preState.charAt(i) != eng.charAt(i)){
+                                        index = i;
+                                        break;
                                     }
                                 }
-                            }
+                                Stack<wordUBS> stack = unBackSpace.get(index);
+                                int stackSize = stack.size();
+                                if (stackSize==0){
+                                    stack.add(new wordUBS(0,w));
+                                }else if (compare(w, stack.get(0).word) == -1){
+                                    stack.add(0,new wordUBS(stack.get(0).index, w));
+                                      }else if (compare(w, stack.get(stackSize-1).word) == 1){
+                                        stack.add(stackSize,new wordUBS(stack.get(stackSize-1).index, w));
+                                            }else for(int j = 0; j < stackSize-1; j++){
+                                                    if (compare(w, stack.get(j).word) == 1 && compare(w, stack.get(j+1).word) == -1){
+                                                     if (stack.get(j).word.eng.charAt(0)==w.eng.charAt(0)){
+                                                         stack.add(j+1, new wordUBS(stack.get(j).index, w));
+                                                     }else if (stack.get(j+1).word.eng.charAt(0)==w.eng.charAt(0)){
+                                                         stack.add(j+1, new wordUBS(stack.get(j+1).index, w));
+                                                     }
+                                                    break;
+                                                    }
+                                            }
+                                }
                         }
                     }
                 });
@@ -463,7 +493,18 @@ public class Dictionary extends JFrame{
                                 if (i.eng.equals(eng)){
                                     data.remove(i);
                                     if (listE.size() > 0) {
-                                        listE.removeElement(i);
+                                        if (!listE.removeElement(i)){
+                                            int stackStackSize = unBackSpace.size();
+                                            for(int j = 0; j < stackStackSize; j++){
+                                                int stackSize = unBackSpace.get(j).size();
+                                                for(int k = 0; k < stackSize; k++){
+                                                    if (unBackSpace.get(j).get(k).word.eng.equals(eng)) {
+                                                        unBackSpace.get(j).remove(k);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                     isDeleted = true;
                                     exportToFile();
@@ -592,13 +633,31 @@ public class Dictionary extends JFrame{
                         }else{
                             data.get(editAtPos).vie = vie;
                             exportToFile();
-                            if (listE.size() > 0) {
-                                listE.get(editAtPos).vie = vie;
-                            }
                             engTextFieldOfEdit.setText(null);
                             vieTextFieldOfEdit.setText(null);
                             statusLabelOfEdit.setForeground(Color.BLUE);
                             statusLabelOfEdit.setText("Đã sửa nghĩa của \"" + eng + "\" thành \"" + vie + "\"!");
+                        }
+                        boolean edited = false;
+                        if (listE.size() > 0){
+                            for(int i = 0; i < listE.size(); i++){
+                                if (listE.get(i).eng.equals(eng)){
+                                    listE.get(i).vie = vie;
+                                    edited = true;
+                                }
+                            }
+                            if (!edited){
+                                int stackStackSize = unBackSpace.size();
+                                for(int j = 0; j < stackStackSize; j++){
+                                    int stackSize = unBackSpace.get(j).size();
+                                    for(int k = 0; k < stackSize; k++){
+                                        if (unBackSpace.get(j).get(k).word.eng.equals(eng)) {
+                                            unBackSpace.get(j).get(k).word.vie = vie;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 });
@@ -704,7 +763,7 @@ public class Dictionary extends JFrame{
               }else if (e.getKeyCode() == KeyEvent.VK_ENTER){
                   engInput.setText(englishList.getSelectedValue().eng);
                   search(englishList.getSelectedValue().eng.substring(pos));
-                  vieField.setText(englishList.getSelectedValue().vie);
+                  vieField.setText(" " + englishList.getSelectedValue().vie);
                   jScrollPane.setSize(180,0);
               }else if (e.getKeyCode() == KeyEvent.VK_UP){
                   int currentIndex = englishList.getSelectedIndex();
@@ -796,7 +855,7 @@ public class Dictionary extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 engInput.setText(englishList.getSelectedValue().eng);
                 search(englishList.getSelectedValue().eng.substring(pos));
-                vieField.setText(englishList.getSelectedValue().vie);
+                vieField.setText(" "+englishList.getSelectedValue().vie);
                 jScrollPane.setSize(180,0);
             }
         });
@@ -812,7 +871,7 @@ public class Dictionary extends JFrame{
                 if (e.getKeyCode() == KeyEvent.VK_ENTER){
                     engInput.setText(englishList.getSelectedValue().eng);
                     search(englishList.getSelectedValue().eng.substring(pos));
-                    vieField.setText(englishList.getSelectedValue().vie);
+                    vieField.setText(" " + englishList.getSelectedValue().vie);
                     jScrollPane.setSize(180,0);
                 }
             }
@@ -824,7 +883,7 @@ public class Dictionary extends JFrame{
                 if (e.getClickCount() == 2){
                     engInput.setText(englishList.getSelectedValue().eng);
                     search(englishList.getSelectedValue().eng.substring(pos));
-                    vieField.setText(englishList.getSelectedValue().vie);
+                    vieField.setText(" " + englishList.getSelectedValue().vie);
                     jScrollPane.setSize(180,0);
                 }
             }
