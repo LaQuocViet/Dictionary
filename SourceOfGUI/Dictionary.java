@@ -187,9 +187,9 @@ public class Dictionary extends JFrame{
         }
         pos+=textLength;
         if (listE.size() == 1 && pos == listE.get(0).eng.length()){
-                jScrollPane.setSize(180,0);
-                englishList.setSelectedIndex(0);
-                vieField.setText(" " + listE.get(0).vie);
+            jScrollPane.setSize(180,0);
+            englishList.setSelectedIndex(0);
+            vieField.setText(" " + listE.get(0).vie);
         }else{
             int height = 0, numberOfElement = listE.getSize();
             if (numberOfElement == 1) height = 22;
@@ -357,7 +357,7 @@ public class Dictionary extends JFrame{
                         }else if (vie.equals("")){
                             statusLabelOfAdd.setForeground(Color.RED);
                             statusLabelOfAdd.setText("Bạn chưa nhập từ Tiếng Việt!");
-                         }else{
+                        }else{
                             Word w = new Word(eng, vie);
                             //add vào file và data
                             int n = data.size();
@@ -395,13 +395,13 @@ public class Dictionary extends JFrame{
                                     if (compare(w, listE.get(0)) == -1){
                                         listE.add(0,w);
                                     }else if (compare(w, listE.get(m-1)) == 1){
-                                            listE.add(m,w);
-                                          }else for(int j = 0; j < m-1; j++){
-                                                    if (compare(w, listE.get(j)) == 1 && compare(w, listE.get(j+1)) == -1){
-                                                        listE.add(j+1, w);
-                                                        break;
-                                                    }
-                                           }
+                                        listE.add(m,w);
+                                    }else for(int j = 0; j < m-1; j++){
+                                        if (compare(w, listE.get(j)) == 1 && compare(w, listE.get(j+1)) == -1){
+                                            listE.add(j+1, w);
+                                            break;
+                                        }
+                                    }
                                 }
                             }else{
                                 int preStateLength = preState.length();
@@ -418,19 +418,19 @@ public class Dictionary extends JFrame{
                                     stack.add(new wordUBS(0,w));
                                 }else if (compare(w, stack.get(0).word) == -1){
                                     stack.add(0,new wordUBS(stack.get(0).index, w));
-                                      }else if (compare(w, stack.get(stackSize-1).word) == 1){
-                                        stack.add(stackSize,new wordUBS(stack.get(stackSize-1).index, w));
-                                            }else for(int j = 0; j < stackSize-1; j++){
-                                                    if (compare(w, stack.get(j).word) == 1 && compare(w, stack.get(j+1).word) == -1){
-                                                     if (stack.get(j).word.eng.charAt(0)==w.eng.charAt(0)){
-                                                         stack.add(j+1, new wordUBS(stack.get(j).index, w));
-                                                     }else if (stack.get(j+1).word.eng.charAt(0)==w.eng.charAt(0)){
-                                                         stack.add(j+1, new wordUBS(stack.get(j+1).index, w));
-                                                     }
-                                                    break;
-                                                    }
-                                            }
+                                }else if (compare(w, stack.get(stackSize-1).word) == 1){
+                                    stack.add(stackSize,new wordUBS(stack.get(stackSize-1).index, w));
+                                }else for(int j = 0; j < stackSize-1; j++){
+                                    if (compare(w, stack.get(j).word) == 1 && compare(w, stack.get(j+1).word) == -1){
+                                        if (stack.get(j).word.eng.charAt(index)<=w.eng.charAt(index)){
+                                            stack.add(j+1, new wordUBS(stack.get(j).index, w));
+                                        }else if (stack.get(j+1).word.eng.charAt(index)>=w.eng.charAt(index)){
+                                            stack.add(j+1, new wordUBS(stack.get(j+1).index, w));
+                                        }
+                                        break;
+                                    }
                                 }
+                            }
                         }
                     }
                 });
@@ -500,6 +500,13 @@ public class Dictionary extends JFrame{
                                                 for(int k = 0; k < stackSize; k++){
                                                     if (unBackSpace.get(j).get(k).word.eng.equals(eng)) {
                                                         unBackSpace.get(j).remove(k);
+                                                        for(int l=0; l < j; l++){
+                                                            for(int m = 0; m < unBackSpace.get(l).size(); m++){
+                                                              if ((int)unBackSpace.get(l).get(m).word.eng.charAt(l) > (int)eng.charAt(l)){
+                                                                  unBackSpace.get(l).get(m).index--;
+                                                              }
+                                                            }
+                                                        }
                                                         break;
                                                     }
                                                 }
@@ -729,70 +736,70 @@ public class Dictionary extends JFrame{
         engInput.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-              if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.getKeyCode() == KeyEvent.VK_DELETE){
-                  String floState = engInput.getText();
-                  if (isApartOf(floState,preState)){
-                    int length = engInput.getText().length();
-                    for(int i = 0; i < pos - length; i++){
-                      popUBS();
-                    }
-                    pos = length;
-                    if (listE.size()==1 && pos == listE.get(0).eng.length()){
-                          jScrollPane.setSize(180,0);
-                          vieField.setText(" " + listE.get(0).vie);
+                if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE || e.getKeyCode() == KeyEvent.VK_DELETE){
+                    String floState = engInput.getText();
+                    if (isApartOf(floState,preState)){
+                        int length = engInput.getText().length();
+                        for(int i = 0; i < pos - length; i++){
+                            popUBS();
+                        }
+                        pos = length;
+                        if (listE.size()==1 && pos == listE.get(0).eng.length()){
+                            jScrollPane.setSize(180,0);
+                            vieField.setText(" " + listE.get(0).vie);
+                        }else{
+                            vieField.setText("");
+                            int height = 0, numberOfElement = listE.getSize();
+                            if (numberOfElement == 1) height = 22;
+                            else if (numberOfElement == 2) height = 42;
+                            else if (numberOfElement == 3) height = 60;
+                            else if (numberOfElement == 4) height = 80;
+                            else if (numberOfElement >= 5) height = 100;
+                            jScrollPane.setSize(180, height);
+                            englishList.setSelectedIndex(0);
+                        }
+                        preState = floState;
                     }else{
-                      vieField.setText("");
-                      int height = 0, numberOfElement = listE.getSize();
-                      if (numberOfElement == 1) height = 22;
-                      else if (numberOfElement == 2) height = 42;
-                      else if (numberOfElement == 3) height = 60;
-                      else if (numberOfElement == 4) height = 80;
-                      else if (numberOfElement >= 5) height = 100;
-                      jScrollPane.setSize(180, height);
-                      englishList.setSelectedIndex(0);
+                        while (!unBackSpace.empty()){
+                            popUBS();
+                        }
+                        pos = 0;
+                        search(floState);
+                        preState = floState;
                     }
-                    preState = floState;
-                  }else{
-                      while (!unBackSpace.empty()){
-                          popUBS();
-                      }
-                      pos = 0;
-                      search(floState);
-                      preState = floState;
-                  }
-              }else if (e.getKeyCode() == KeyEvent.VK_ENTER){
-                  engInput.setText(englishList.getSelectedValue().eng);
-                  search(englishList.getSelectedValue().eng.substring(pos));
-                  vieField.setText(" " + englishList.getSelectedValue().vie);
-                  jScrollPane.setSize(180,0);
-              }else if (e.getKeyCode() == KeyEvent.VK_UP){
-                  int currentIndex = englishList.getSelectedIndex();
-                  if (currentIndex > 0) {
-                      englishList.setSelectedIndex(currentIndex-1);
-                      englishList.ensureIndexIsVisible(currentIndex);
-                  }
-              }else if (e.getKeyCode() == KeyEvent.VK_DOWN){
-                  int currentIndex = englishList.getSelectedIndex();
-                  if (currentIndex < listE.size()-1) {
-                      englishList.setSelectedIndex(currentIndex+1);
-                      englishList.ensureIndexIsVisible(currentIndex);
-                  }
-              }else if (e.getKeyCode() != KeyEvent.VK_CONTROL || e.getKeyCode() != KeyEvent.VK_LEFT || e.getKeyCode() != KeyEvent.VK_RIGHT){
-                  vieField.setText("");
-                  if (isApartOf(preState, engInput.getText())){
-                    String text = engInput.getText().substring(pos);
-                    preState += text;
-                    search(text);
-                  }else{
-                      int i = differentAt(preState, engInput.getText());
-                      while (unBackSpace.size() > i){
-                          popUBS();
-                      }
-                      pos = i;
-                      preState = engInput.getText();
-                      search(preState.substring(i));
-                  }
-              }
+                }else if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                    engInput.setText(englishList.getSelectedValue().eng);
+                    search(englishList.getSelectedValue().eng.substring(pos));
+                    vieField.setText(" " + englishList.getSelectedValue().vie);
+                    jScrollPane.setSize(180,0);
+                }else if (e.getKeyCode() == KeyEvent.VK_UP){
+                    int currentIndex = englishList.getSelectedIndex();
+                    if (currentIndex > 0) {
+                        englishList.setSelectedIndex(currentIndex-1);
+                        englishList.ensureIndexIsVisible(currentIndex);
+                    }
+                }else if (e.getKeyCode() == KeyEvent.VK_DOWN){
+                    int currentIndex = englishList.getSelectedIndex();
+                    if (currentIndex < listE.size()-1) {
+                        englishList.setSelectedIndex(currentIndex+1);
+                        englishList.ensureIndexIsVisible(currentIndex);
+                    }
+                }else if (e.getKeyCode() != KeyEvent.VK_CONTROL || e.getKeyCode() != KeyEvent.VK_LEFT || e.getKeyCode() != KeyEvent.VK_RIGHT){
+                    vieField.setText("");
+                    if (isApartOf(preState, engInput.getText())){
+                        String text = engInput.getText().substring(pos);
+                        preState += text;
+                        search(text);
+                    }else{
+                        int i = differentAt(preState, engInput.getText());
+                        while (unBackSpace.size() > i){
+                            popUBS();
+                        }
+                        pos = i;
+                        preState = engInput.getText();
+                        search(preState.substring(i));
+                    }
+                }
             }
         });
 
